@@ -1,0 +1,38 @@
+---
+modules:
+  - .DADataType
+---
+include:
+  - DADataType.yml
+---
+objects:
+  - fact: DADTBoolean
+  - name: DADTString
+  - age: DADTNumber
+  - birthdate: DADTDate
+  - email_address: DADTEmail
+  - terms: DADTContinue
+  - lunch: DADTTime
+  - end_of_the_world: DADTDateTime
+---
+mandatory: True
+question: Summary
+subquestion: |
+
+  % if terms:
+  The user agreed to the terms.
+  % endif
+  
+  The name is ${ name }.
+  
+  The age is ${ age }.
+  
+  The fact is ${ fact }.
+  
+  The email address is ${email_address }.
+  
+  The birthdate is ${ birthdate }.
+  
+  Lunch is at ${ lunch }.
+  
+  The end of the world is scheduled for ${ end_of_the_world }.
