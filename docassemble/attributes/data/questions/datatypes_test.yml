@@ -6,6 +6,8 @@ include:
   - DADataType.yml
 ---
 objects:
+  - option: DADTEnum
+  - selection: DADTTest
   - fact: DADTBoolean
   - name: DADTString
   - age: DADTNumber
@@ -14,6 +16,12 @@ objects:
   - terms: DADTContinue
   - lunch: DADTTime
   - end_of_the_world: DADTDateTime
+  - choice: DADTDict
+  - exchange_rate: DADTCurrency
+  - number_of_cars: DADTInt
+  - mood: DADTMl
+  - insurance: DADTYesNoRadio
+
 ---
 mandatory: True
 question: Summary
@@ -22,6 +30,10 @@ subquestion: |
   % if terms:
   The user agreed to the terms.
   % endif
+  
+  You selected ${ option }.
+
+  You chose ${ selection }.
   
   The name is ${ name }.
   
@@ -36,3 +48,13 @@ subquestion: |
   Lunch is at ${ lunch }.
   
   The end of the world is scheduled for ${ end_of_the_world }.
+
+  You chose ${ choice }.
+
+  It is ${ exchange_rate }.
+
+  There are ${ number_of_cars }.
+
+  You sound ${ mood }.
+
+  You have ${ insurance }.

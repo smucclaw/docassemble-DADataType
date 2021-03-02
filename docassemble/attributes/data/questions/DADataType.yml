@@ -1,3 +1,46 @@
+generic object: DADTEnum
+question: Please select an ${ x.object_name() }.
+fields:
+  - ${ x.object_name() } : x.value
+    datatype: radio
+    code: |
+      options
+---
+code: |
+  options =   [
+              'fact',
+              'name',
+              'age',
+              'birthdate',
+              'email_address',
+              'terms',
+              'lunch',
+              'end_of_the_world',
+              'choice',
+              'exchange_rate',
+              'number_of_cars',
+              'mood',
+              'insurance'
+              ]
+---
+generic object: DADTTest
+question: Please specify a list.
+fields:
+  - ${ x.object_name() }: x.value
+    datatype: radio
+    code: |
+      stuff
+---
+code: |
+  stuff = list(map(favourite))
+---
+objects:
+  - DADTObject: DAList
+  - name: Thing
+  - age: Thing
+  - child: DAList.using(object_type=Thing, there_are_any=True, there_is_another=True, ask_object_type=True )
+  - favourite: DADTObject.using(source=child)
+---
 generic object: DADTBoolean
 question: ${ x.object_name() }?
 yesno: x.value
@@ -23,6 +66,7 @@ question: What is ${ x.object_name() }?
 fields:
   - ${ x.object_name() }: x.value
     datatype: text
+    input type: area
 ---
 generic object: DADTDate
 question: What date is ${ x.object_name() }?
@@ -41,3 +85,48 @@ question: When is ${ x.object_name() }?
 fields:
   - ${ x.object_name() }: x.value
     datatype: datetime
+---
+generic object: DADTDict
+question: Which to choose ?
+fields:
+  - ${ x.object_name() }: x.value
+    datatype: checkboxes
+    input type: radio
+    choices: 
+      - Apple
+      - Bananas
+      - Peach
+---
+generic object: DADTCurrency
+question: How much is ${ x.object_name() } in EUR ?
+fields: 
+  - ${ x.object_name() }: x.value
+    datatype: currency
+    currency symbol: €
+---
+generic object: DADTInt
+question: How many ${ x.object_name() } are there ?
+fields:
+  - ${ x.object_name() }: x.value
+    datatype: integer
+---
+generic object: DADTMl
+question: What's your ${ x.object_name()} ?
+fields:
+  - ${ x.object_name() }: x.value
+    datatype: ml
+    input type: area 
+---
+generic object: DADTYesNoRadio
+question: Do you have ${ x.object_name()} ?
+fields:
+  - ${ x.object_name() }: x.value
+    datatype: yesnoradio
+---
+
+
+
+
+
+
+  
