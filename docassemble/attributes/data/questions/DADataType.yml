@@ -16,7 +16,7 @@ generic object: DADTEmail
 question: What is ${ x.object_name() } (an email address)?
 fields:
   - ${ x.object_name() }: x.value
-    datatype: email
+    datatype: emailD
 ---
 generic object: DADTString
 question: What is ${ x.object_name() }?
@@ -41,3 +41,35 @@ question: When is ${ x.object_name() }?
 fields:
   - ${ x.object_name() }: x.value
     datatype: datetime
+---
+generic object: DADTYesNoMaybe
+question: ${ x.object_name() }?
+yesnomaybe: x.value
+---
+generic object: DADTFile
+question: Upload a file ${ x.object_name() }
+fields:
+  - ${ x.object_name() } : x.value
+    datatype: file
+---
+generic object: DAList
+question: Are there any ${ x.object_name() }
+yesno: x.there_are_any 
+---
+generic object: DAList
+question: Is there another of ${ x.object_name() }
+yesno: x.there_is_another
+---
+generic object: DADTEnum
+question: What is your choice ${ x.object_name() }
+fields:
+  - ${ x.object_name() }: x.value
+    datatype: radio
+    code: |
+      myoptions
+---
+code: |
+  myoptions = [
+                {'option1': "First Option"},
+                {'option2': "Second Option"},
+              ]

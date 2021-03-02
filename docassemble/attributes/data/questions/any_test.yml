@@ -1,0 +1,14 @@
+---
+modules:
+  - .DADataType
+---
+include:
+  - DADataType.yml
+---
+objects:
+  - test: DAList.using(object_type=DADTNumber)
+---
+mandatory: true
+question: Results
+subquestion: |
+  The numbers you gave me are ${ test }.

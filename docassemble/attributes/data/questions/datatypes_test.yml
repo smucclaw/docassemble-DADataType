@@ -14,6 +14,9 @@ objects:
   - terms: DADTContinue
   - lunch: DADTTime
   - end_of_the_world: DADTDateTime
+  - possibly: DADTYesNoMaybe
+  - a_file: DADTFile
+  - choices: DADTEnum
 ---
 mandatory: True
 question: Summary
@@ -36,3 +39,9 @@ subquestion: |
   Lunch is at ${ lunch }.
   
   The end of the world is scheduled for ${ end_of_the_world }.
+  
+  This is true ${ possibly } true.
+  
+  The file is ${ a_file }
+  
+  My choices are ${ choices }
