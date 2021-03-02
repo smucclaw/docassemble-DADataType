@@ -37,3 +37,8 @@ The available datatypes are currently:
 * DADTDate
 * DADTDateTime
 * DADTEmail
+* DADTEnum (which accepts options in the `options` attribute)
+* DADTObjectRef (which accepts a DAList of DAObjects as the `source` attribute)
+* DADTYesNoMaybe
+* DADTFile
+* DAList collection for any of the above.
