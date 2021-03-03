@@ -5,9 +5,9 @@ def plus_one(num):
     return num + 1
 
 
-def path_convert(fname):
+def path_convert(fname: str) -> str:
     '''
-    Converts pathnames of static files that are served to the user, to the actual yaml file.
+    Converts pathnames of static interviews that are served to the user, to the actual yaml file.
 
     TODO: While this will work when using playground files, I doubt that actual packaged yaml files will function in the same way.
           Perhaps it might be wiser to implement this within the module itself?
@@ -17,11 +17,36 @@ def path_convert(fname):
     '''
     return re.sub('playgroundstatic','playground',fname)
 
+def agenda_path_convert(fname: str) -> str:
+    '''
+    Generates a pathname for the agenda file associated with the static interview served to the user.
 
-def get_contents(fname):
+    TODO: Right now this functions on the assumption that all agenda files will be within the
+          playgroundsources directory. It also presumes that all agenda files associated with
+          a <interview>.yml is named <interview>Agenda.yml
+    '''
+    stat2source = re.sub('static','sources',fname)
+    return re.sub('\.yml$','Agenda.yml',stat2source)
+
+
+def get_contents(fname: str) -> list:
     with open(fname, 'r') as f:
         return f.readlines()
 
+def get_agenda(fname: list) -> list:
+    '''
+        Returns agenda information given an external agenda file of <interview>Agenda.yml format
+    '''
+    agenda_contents = get_contents(fname)
+
+    lb, rb = get_bounding('agenda', agenda_contents)
+
+    agenda_list = []
+    for line in agenda_contents[lb:rb]:
+        line=re.sub('-|\s','',line)
+        agenda_list.append(line)
+
+    return agenda_list
 
 def get_bounding(block_type : str, yaml_contents : list) -> (int, int):
     '''
@@ -84,7 +109,21 @@ def yaml_call_object(obj_name : str):
     value(obj_name + '.value')
     return
 
+def ext_form_agenda(agenda_path : str):
+    '''
+        Specifically for use with external agenda files with <interview>Agenda.yml format
+    '''
+    ext_agenda = get_agenda(agenda_path)
+
+    for obj_name in ext_agenda:
+        yaml_call_object(obj_name)
+    return
+
+
 def yaml_form_agenda(yaml_path : str):
+    '''
+        Specifically for use with the 'question metadata' modifier containing an 'agenda' yaml header
+    '''
     this_file = get_contents(yaml_path)
     all_agenda = yaml_get_agenda(this_file)
 
