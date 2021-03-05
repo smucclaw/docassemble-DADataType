@@ -33,20 +33,6 @@ def get_contents(fname: str) -> list:
     with open(fname, 'r') as f:
         return f.readlines()
 
-def get_agenda(fname: list) -> list:
-    '''
-        Returns agenda information given an external agenda file of <interview>Agenda.yml format
-    '''
-    agenda_contents = get_contents(fname)
-
-    lb, rb = get_bounding('agenda', agenda_contents)
-
-    agenda_list = []
-    for line in agenda_contents[lb:rb]:
-        line=re.sub('-|\s','',line)
-        agenda_list.append(line)
-
-    return agenda_list
 
 def get_bounding(block_type : str, yaml_contents : list) -> (int, int):
     '''
@@ -82,13 +68,9 @@ def yaml_get_agenda(yaml_contents: list) -> list:
         Returns objects information
     '''
     lb, rb = get_bounding('agenda', yaml_contents)
+    agenda_kebab = re.sub('\s', yaml_contents[lb:rb])
 
-    agenda_list = []
-    for line in yaml_contents[lb:rb]:
-        line=re.sub('-|\s','',line)
-        agenda_list.append(line)
-
-    return agenda_list
+    return agenda_kebab.split('-')
 
 
 def yaml_get_objects(yaml_contents: list) -> dict:
@@ -100,8 +82,12 @@ def yaml_get_objects(yaml_contents: list) -> dict:
     obj_nameType = {}
     for line in yaml_contents[lb:rb]:
         line=re.sub('-|\s','',line)
-        objName, objType = line.split(':')
-        obj_nameType[objName] = objType
+
+        if not line: # empty strings are falsy
+            pass
+        else:
+            objName, objType = line.split(':')
+            obj_nameType[objName] = objType
 
     return obj_nameType
 
@@ -109,16 +95,7 @@ def yaml_call_object(obj_name : str):
     value(obj_name + '.value')
     return
 
-def ext_form_agenda(agenda_path : str):
-    '''
-        Specifically for use with external agenda files with <interview>Agenda.yml format
-    '''
-    ext_agenda = get_agenda(agenda_path)
-
-    for obj_name in ext_agenda:
-        yaml_call_object(obj_name)
     return
-
 
 def yaml_form_agenda(yaml_path : str):
     '''
@@ -136,5 +113,33 @@ def yaml_form_objects(yaml_path : str):
     objs = yaml_get_objects(this_file)
 
     for obj_name in objs.keys():
+        yaml_call_object(obj_name)
+    return
+
+
+
+## Working with external files
+
+# TODO:
+#   - refactor yaml_get_agenda and ext_get_agenda to agenda_from_file
+
+def ext_get_agenda(fname: list) -> list:
+    '''
+        Returns agenda information given an external agenda file of <interview>Agenda.yml format
+    '''
+    agenda_contents = get_contents(fname)
+
+    lb, rb = get_bounding('agenda', agenda_contents)
+    agenda_kebab = re.sub('\s', yaml_contents[lb:rb])
+
+    return agenda_kebab.split('-')
+
+def ext_form_agenda(agenda_path : str):
+    '''
+        Specifically for use with external agenda files with <interview>Agenda.yml format
+    '''
+    ext_agenda = ext_get_agenda(agenda_path)
+
+    for obj_name in ext_agenda:
         yaml_call_object(obj_name)
     return
