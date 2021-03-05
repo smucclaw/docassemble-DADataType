@@ -7,6 +7,11 @@ include:
   - DADataType.yml
 ---
 objects:
+  - peeps: DAList.using(object_type=DADTString, complete_attribute='complete')
+  - peeps[i].age: DADTNumber
+  - peeps[i].birthdate: DADTDate
+  - peeps[i].email_address: DADTEmail
+
   - fact: DADTBoolean
   - name: DADTString
   - age: DADTNumber
@@ -16,13 +21,20 @@ objects:
   - lunch: DADTTime
   - end_of_the_world: DADTDateTime
 ---
+code: |
+  peeps[i].value
+  peeps[i].age.value
+  peeps[i].birthdate.value
+  peeps[i].email_address.value
+  peeps[i].complete = True
+---
 mandatory: True
 code: |
-  static_yaml_path, mimetype = path_and_mimetype(user_info().filename)
+  static_yaml_path, _ = path_and_mimetype(user_info().filename)
   yaml_path = path_convert(static_yaml_path)
   agenda_path = agenda_path_convert(static_yaml_path)
 
-  ext_form_agenda(agenda_path)
+  yaml_call_list('peeps')
 ---
 mandatory: True
 question: |

@@ -95,6 +95,8 @@ def yaml_call_object(obj_name : str):
     value(obj_name + '.value')
     return
 
+def yaml_call_list(list_name: str):
+    value(list_name + '.there_are_any')
     return
 
 def yaml_form_agenda(yaml_path : str):
