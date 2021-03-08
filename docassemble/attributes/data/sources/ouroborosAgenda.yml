@@ -1,4 +1,5 @@
 agenda:
+  - peeps
   - name
   - age
   - email_address

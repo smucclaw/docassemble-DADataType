@@ -1,8 +1,7 @@
+import os
 import re
 from docassemble.base.functions import value
 
-def plus_one(num):
-    return num + 1
 
 
 def path_convert(fname: str) -> str:
@@ -25,7 +24,7 @@ def agenda_path_convert(fname: str) -> str:
           playgroundsources directory. It also presumes that all agenda files associated with
           a <interview>.yml is named <interview>Agenda.yml
     '''
-    stat2source = re.sub('static','sources',fname)
+    stat2source = re.sub('playground(static)?','playgroundsources',fname)
     return re.sub('\.yml$','Agenda.yml',stat2source)
 
 
@@ -47,9 +46,9 @@ def get_bounding(block_type : str, yaml_contents : list) -> (int, int):
     agendaHeader = '[\s]*agenda:'
     findRight = False
 
-    if re.match('obj[ect]?s?',block_type):
+    if re.match('obj(ect)?s?',block_type):
         block_header = objectsHeader
-    elif re.match('ag.?n[da]?',block_type):
+    elif re.match('ag.?n(da)?',block_type):
         block_header = agendaHeader
 
     for n, line in enumerate(yaml_contents):
@@ -68,9 +67,9 @@ def yaml_get_agenda(yaml_contents: list) -> list:
         Returns objects information
     '''
     lb, rb = get_bounding('agenda', yaml_contents)
-    agenda_kebab = re.sub('\s', yaml_contents[lb:rb])
+    agenda_kebab = re.sub('\s', '', ''.join(yaml_contents[lb:rb]))
 
-    return agenda_kebab.split('-')
+    return agenda_kebab.strip('-').split('-')
 
 
 def yaml_get_objects(yaml_contents: list) -> dict:
@@ -91,26 +90,15 @@ def yaml_get_objects(yaml_contents: list) -> dict:
 
     return obj_nameType
 
-def yaml_call_object(obj_name : str):
+def yaml_call_object(obj_name : str) -> None:
     value(obj_name + '.value')
     return
 
-def yaml_call_list(list_name: str):
+def yaml_call_list(list_name: str) -> None:
     value(list_name + '.there_are_any')
     return
 
-def yaml_form_agenda(yaml_path : str):
-    '''
-        Specifically for use with the 'question metadata' modifier containing an 'agenda' yaml header
-    '''
-    this_file = get_contents(yaml_path)
-    all_agenda = yaml_get_agenda(this_file)
-
-    for obj_name in all_agenda:
-        yaml_call_object(obj_name)
-    return
-
-def yaml_form_objects(yaml_path : str):
+def yaml_form_objects(yaml_path : str) -> None:
     this_file = get_contents(yaml_path)
     objs = yaml_get_objects(this_file)
 
@@ -125,23 +113,24 @@ def yaml_form_objects(yaml_path : str):
 # TODO:
 #   - refactor yaml_get_agenda and ext_get_agenda to agenda_from_file
 
-def ext_get_agenda(fname: list) -> list:
+def yaml_form_agenda(yaml_path : str):
     '''
-        Returns agenda information given an external agenda file of <interview>Agenda.yml format
+    Takes a yaml file and calls the objects appropriately based on an agenda
     '''
-    agenda_contents = get_contents(fname)
+    intv_file = get_contents(yaml_path)
 
-    lb, rb = get_bounding('agenda', agenda_contents)
-    agenda_kebab = re.sub('\s', yaml_contents[lb:rb])
+    # check if external file exists, if true, use. else default to in-yaml metadata agenda block.
+    ext_agenda_path = agenda_path_convert(yaml_path)
+    if os.path.isfile(ext_agenda_path):
+        agda_file = get_contents(ext_agenda_path)
+    else:
+        raise FileNotFoundError('Agenda file not found: {}'.format(ext_agenda_path))
 
-    return agenda_kebab.split('-')
-
-def ext_form_agenda(agenda_path : str):
-    '''
-        Specifically for use with external agenda files with <interview>Agenda.yml format
-    '''
-    ext_agenda = ext_get_agenda(agenda_path)
-
-    for obj_name in ext_agenda:
-        yaml_call_object(obj_name)
+    all_agenda = yaml_get_agenda(agda_file)
+    all_objs   = yaml_get_objects(intv_file)
+    for obj_name in all_agenda:
+        if re.match('DAList.*',all_objs[obj_name]):
+            yaml_call_list(obj_name)
+        else:
+            yaml_call_object(obj_name)
     return
