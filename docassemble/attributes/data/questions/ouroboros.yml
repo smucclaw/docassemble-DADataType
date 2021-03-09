@@ -24,23 +24,25 @@ objects:
 code: |
   peeps[i].value
   peeps[i].age.value
-  peeps[i].birthdate.value
-  peeps[i].email_address.value
   peeps[i].complete = True
 ---
 mandatory: True
 code: |
   static_yaml_path, _ = path_and_mimetype(user_info().filename)
   yaml_path = path_convert(static_yaml_path)
-  agenda_path = agenda_path_convert(static_yaml_path)
+  this_file = get_contents(yaml_path)
+  lb, rb = get_bounding('code',this_file,list_name='peeps')
+  chunk = this_file[lb:rb]
 
-  yaml_call_list('peeps')
+  gotPeeps = yaml_call_list(state='initialize', list_name='peeps', chunk=chunk)
 ---
 mandatory: True
 question: |
   Yaml file information
 subquestion: |
   This page is intentionally left blank.
+
+  ${ gotPeeps }
 buttons:
   Exit: exit
 ---

@@ -108,7 +108,7 @@ def yaml_call_object(obj_name : str) -> None:
     value(obj_name + '.value')
     return
 
-def yaml_call_list(**kwargs) -> None:
+def yaml_call_list(**kwargs) -> bool:
     # 1) given a list name and chunk, initialize counter to 0.
     # 2) substitute counter if counter in kwargs
     # 3)
@@ -125,29 +125,36 @@ def yaml_call_list(**kwargs) -> None:
         kwargs['counter'] = 0
         if step:
             kwargs['state'] = 'collect'
-            yaml_call_list(**kwargs)
+            return yaml_call_list(**kwargs)
         else:
-            return
+            return True # If there should not elements of the such, the empty list is complete
+
     elif state == 'collect':
+
         for attr in kwargs['chunk']:
-            attr = attr.strip() # this should be handled before chunk is passed.
-            if re.match('.*\.complete',attr):
+            attr = attr.strip() # this should be handled before chunk is passed on initialization.
+            tbc = re.sub(kwargs['sub_str'],r'\g<1>{}\g<2>'.format(kwargs['counter']),attr)
+
+            if re.match(r'.*\.complete',attr):
+                # notify completeness of inner DAList object
+                tbc = re.sub('\s','',tbc)
+                tbc = tbc.split('=')
+                define(tbc[0], tbc[1])
+
                 swp = kwargs['list_name'] + '.there_is_another'
                 undefine(swp)
-                nxt = value(swp)
+                nxt = value(swp) # it seems to be stuck here :/
                 if nxt:
                     kwargs['counter'] += 1
-                    yaml_call_list(**kwargs)
+                    return yaml_call_list(**kwargs)
                 else:
-                    define(kwargs['list_name']+'.gathered',True)
-                    return # list fully collected
+                    return True # list fully collected
 
             else: ## TODO: REFACTOR
-                tbc = re.sub(kwargs['sub_str'],r'\g<1>{}\g<2>'.format(kwargs['counter']),attr)
-                if re.match(kwargs['list_name'] + '\[[0-5]*\].value',tbc):
+                if re.match(kwargs['list_name'] + r'\[[0-9]*\].value',tbc):
                     value(tbc)
                 else:
-                    tbc_init = re.sub('\.value','',tbc) # perhaps this should be handled somewhere else?
+                    tbc_init = re.sub(r'\.value','',tbc) # perhaps this should be handled somewhere else?
                     value(tbc_init)
                     value(tbc)
 
