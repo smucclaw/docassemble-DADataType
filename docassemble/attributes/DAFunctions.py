@@ -1,6 +1,6 @@
 import os
 import re
-from docassemble.base.functions import value
+from docassemble.base.functions import value, define, undefine
 
 
 
@@ -33,7 +33,7 @@ def get_contents(fname: str) -> list:
         return f.readlines()
 
 
-def get_bounding(block_type : str, yaml_contents : list) -> (int, int):
+def get_bounding(block_type, yaml_contents, **kwargs) -> (int, int):
     '''
         Returns the boundaries containing the appropriate information.
 
@@ -41,15 +41,26 @@ def get_bounding(block_type : str, yaml_contents : list) -> (int, int):
             - only 1 'objects' block per yaml
             - only 1 'agenda' metadata block per yaml
     '''
+
+    # TODO: this needs urgent refactoring. At this point, this function is too bloated.
+    # Suggest seperating into two, one handling the search, the other handling assignments
+
     blockSep = '---'
     objectsHeader = 'objects:'
     agendaHeader = '[\s]*agenda:'
+    codeHeader = 'code:'
     findRight = False
+
+    list_name = '^$'
+    if kwargs:
+        list_name = '\s*' + kwargs['list_name']
 
     if re.match('obj(ect)?s?',block_type):
         block_header = objectsHeader
     elif re.match('ag.?n(da)?',block_type):
         block_header = agendaHeader
+    elif re.match('code',block_type):
+        block_header = codeHeader
 
     for n, line in enumerate(yaml_contents):
         if re.match(block_header,line):
@@ -57,7 +68,10 @@ def get_bounding(block_type : str, yaml_contents : list) -> (int, int):
             findRight = True
         if findRight and (re.match(blockSep,line)): # block seperator denotes end of list
             rBound = n
-            return (lBound, rBound)
+            if block_header != codeHeader or re.match(list_name, yaml_contents[lBound]):
+                return (lBound, rBound)
+            else:
+                get_bounding('code',yaml_contents[rBound:],list_name=list_name)
 
     raise Exception("get_bounding for {} failed".format(block_type))
 
@@ -94,9 +108,50 @@ def yaml_call_object(obj_name : str) -> None:
     value(obj_name + '.value')
     return
 
-def yaml_call_list(list_name: str) -> None:
-    value(list_name + '.there_are_any')
-    return
+def yaml_call_list(**kwargs) -> None:
+    # 1) given a list name and chunk, initialize counter to 0.
+    # 2) substitute counter if counter in kwargs
+    # 3)
+
+    # definitions
+    if 'state' in kwargs:
+        state = kwargs['state']
+    if 'sub_str' not in kwargs:
+        kwargs['sub_str'] = '(' + kwargs['list_name'] + '\[)(?:i|j|k|l|m|n)(\])'
+
+
+    if state == 'initialize':
+        step = value(kwargs['list_name'] + '.there_are_any')
+        kwargs['counter'] = 0
+        if step:
+            kwargs['state'] = 'collect'
+            yaml_call_list(**kwargs)
+        else:
+            return
+    elif state == 'collect':
+        for attr in kwargs['chunk']:
+            attr = attr.strip() # this should be handled before chunk is passed.
+            if re.match('.*\.complete',attr):
+                swp = kwargs['list_name'] + '.there_is_another'
+                undefine(swp)
+                nxt = value(swp)
+                if nxt:
+                    kwargs['counter'] += 1
+                    yaml_call_list(**kwargs)
+                else:
+                    define(kwargs['list_name']+'.gathered',True)
+                    return # list fully collected
+
+            else: ## TODO: REFACTOR
+                tbc = re.sub(kwargs['sub_str'],r'\g<1>{}\g<2>'.format(kwargs['counter']),attr)
+                if re.match(kwargs['list_name'] + '\[[0-5]*\].value',tbc):
+                    value(tbc)
+                else:
+                    tbc_init = re.sub('\.value','',tbc) # perhaps this should be handled somewhere else?
+                    value(tbc_init)
+                    value(tbc)
+
+    raise Exception('yaml_call_list is not supposed to reach this point.')
 
 def yaml_form_objects(yaml_path : str) -> None:
     this_file = get_contents(yaml_path)
@@ -130,7 +185,7 @@ def yaml_form_agenda(yaml_path : str):
     all_objs   = yaml_get_objects(intv_file)
     for obj_name in all_agenda:
         if re.match('DAList.*',all_objs[obj_name]):
-            yaml_call_list(obj_name)
+            yaml_call_list(list_name=obj_name)
         else:
             yaml_call_object(obj_name)
     return
