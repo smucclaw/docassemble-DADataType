@@ -104,18 +104,31 @@ Docasseble server and run it.
 The example file above will generate an interview that proceeds as follows:
 
 > Q: Is there a game?
+>
 > A: Yes
+>
 > Q: What is first game?
+>
 > A: testGame
+>
 > Q: What is first player of the first game?
+>
 > A: playerOne
+>
 > Q: Select throw of the first player of the first game
+>
 > A: Rock
+>
 > Q: What is second player of the first game?
+>
 > A: playerTwo
+>
 > Q: Select throw of the second player of the first game
+>
 > A: Scissors
+>
 > Q: Is there another game?
+>
 > A: No
 
 And the following screen is displayed:
