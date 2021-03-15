@@ -1,0 +1,27 @@
+rules: rps.pl
+query: winner(Player,Game)
+data:
+  - name: game
+    type: String
+    encodings:
+    - game(X)
+    minimum: 1
+    attributes:
+      - name: player
+        type: String
+        encodings:
+          - player(X)
+          - participant_in(X,Y)
+        exactly: 2
+        attributes:
+          - name: throw
+            type: Enum
+            encodings:
+              - player_throw(Y,X)
+            exactly: 1
+            options:
+              rock: Rock
+              paper: Paper
+              scissors: Scissors
+terms:
+- TechShow 2021 Rock Paper Scissors Act s 4: s 4 - The winner is the player whose throw beats the other player’s throw. ([Source](http://www.canlii.org))

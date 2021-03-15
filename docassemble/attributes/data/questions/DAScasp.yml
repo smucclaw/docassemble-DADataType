@@ -1,0 +1,51 @@
+modules:
+  - .DAScasp
+---
+objects:
+  - database: DAFile.using(filename='db.txt')
+  - rules: DAStaticFile.using(filename=ruleSource)
+---
+features:
+  javascript: list_collapse.js
+  css: list_collapse.css
+---
+template: show_answers
+content: |
+  You asked:
+  **${ answer['query'] }**
+  
+  The reasoner answered:
+  **${ answer['result'] }**
+  
+  % if answer['result'] == 'Yes':
+  % for model in answer['answers']:
+  #### Scenario
+  %if 'bindings' in model:
+  % for b in model['bindings']:
+  * ${ b }
+  % endfor
+  % endif
+  
+  
+  ##### Why? (click to expand)
+  ${ model['explanations'] }
+  
+  % if show_models:
+  ##### Formal Model
+  `${ model['model'] }`
+  % endif
+
+  % endfor
+  % endif
+---
+code: |
+  database.initialize()
+  facts
+  #if defined('assume'):
+  #  for a in assume:
+  #    facts += '#abducible ' + a + '.\n'
+  database.write(facts + rules.slurp() + "\n?- " + query)
+  answer = sendQuery(database.path())
+  if not defined('show_models'):
+    show_models = False
+---

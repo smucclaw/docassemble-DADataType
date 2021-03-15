@@ -1,3 +1,6 @@
+modules:
+  - .DADataType
+---
 generic object: DADTBoolean
 question: ${ x.object_name() }?
 yesno: x.value
