@@ -13,7 +13,7 @@ You need to install s(CASP) on your docassemble server, and may need to modify D
 
 ### Create an s(CASP) Encoding, and an s(CASP) Query
 
-For details on s(CASP) see here.
+For details on s(CASP) see [here](https://gitlab.software.imdea.org/ciao-lang/sCASP).
 
 The example file rps.pl in this package reads as follows:
 
