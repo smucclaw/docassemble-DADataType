@@ -1,0 +1,33 @@
+---
+variable name: data_structure
+data:
+  - name: terms
+    type: Continue
+  - name: person
+    type: String
+    minimum: 1
+    attributes:
+      - name: birthdate
+        type: Date
+  - name: game
+    type: String
+    encoding: game(X).
+    minimum: 1
+    attributes:
+      - name: player
+        type: String
+        encodings:
+          - player(X).
+          - participant_in(X,Y).
+        exactly: 2
+        attributes:
+          - name: throw
+            type: Enum
+            encodings:
+              - player_throw(Y,X).
+            exactly: 1
+            options:
+              Rock: rock
+              Paper: paper
+              Scissors: scissors
+---
