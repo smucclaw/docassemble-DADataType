@@ -17,7 +17,7 @@ def isolateSpec(ds : list[dict], varname: list[str]) -> dict:
                 if i + 1 == len(varname):
                     return deepcopy(dtype)
                 elif "attributes" in dtype.keys():
-                    ds = deepcopy(dtype["attributes"])
+                    ds = dtype["attributes"]
                 pass
 
     return {}
